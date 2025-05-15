@@ -28,9 +28,9 @@ class CasualSelfAttention(nn.Module):
         
         q, k ,v = qkv.split(self.n_embd , dim=2)
         
-        k= k.view(B,T,self.n_head,C//self.n_head).transpose(1,2)
-        q= q.view(B,T,self.n_head,C//self.n_head).transpose(1,2)
-        v= v.view(B,T,self.n_head,C//self.n_head).transpose(1,2)
+        k= k.view(B,T,self.n_head, C // self.n_head).transpose(1,2)
+        q= q.view(B,T,self.n_head, C // self.n_head).transpose(1,2)
+        v= v.view(B,T,self.n_head, C // self.n_head).transpose(1,2)
         
         att = (q@k.transpose(-2,-1)) * (1.0 / math.sqrt(k.siz(-1)))
         att = att.masked_fill(self.bias[:,:,:T,:T]==0,float('-inf'))
@@ -80,8 +80,8 @@ class Block(nn.Module):
 
 @dataclass
 class GPTConfig:
-    block_size: int = 256 
-    vocab_size: int = 65 
+    block_size: int = 1024
+    vocab_size: int = 50257
     n_layers: int = 6
     n_head: int = 6
     n_embd: int = 384 
