@@ -82,9 +82,9 @@ class Block(nn.Module):
 class GPTConfig:
     block_size: int = 1024
     vocab_size: int = 50257
-    n_layers: int = 6
-    n_head: int = 6
-    n_embd: int = 384 
+    n_layers: int = 12
+    n_head: int = 12
+    n_embd: int = 768
     
 class GPT(nn.Module):
     def __init__(self,config):
@@ -99,3 +99,36 @@ class GPT(nn.Module):
         ))
         
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size , bias=False)
+        
+    
+    @classmethod
+    def from_pretrained(cls,model_type):
+        assert model_type in  {'gpt2','gpt2-medium','gpt2-large','gpt2-xl'}
+        
+        from transformers import GPT2LMHeadModel
+        print("Loading weights from pretrained gpt : %s" % model_type)
+        
+        
+        config_args = {
+            "gpt2"        : dict(n_layers = 12 , n_head =12 , n_emdd=768),
+            "gpt2-medium" : dict(n_layers = 12 , n_head =12 , n_emdd= 1024),
+            "gpt2-large"  : dict(n_layers = 12 , n_head =12 , n_emdd= 1024),
+            "gpt2-xl"     : dict(n_layers = 12 , n_head =12 , n_emdd= 1024),
+        }
+        
+        config = GPTConfig(**config_args)
+        
+        model  =GPT(config)
+        
+        sd = model.state_dict()
+        
+        sd_keys = sd.keys()
+        
+        sd_keys = [k for k in sd_keys if not k.endswith('.attn.bias')]
+        
+        model_hf = GPT2LMHeadModel.from_pretrained(model_type)
+        
+        sd_hf = model_hf.state_dict()
+        
+        
+        
